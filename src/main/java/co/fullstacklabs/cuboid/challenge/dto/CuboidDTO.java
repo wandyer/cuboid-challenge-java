@@ -32,7 +32,7 @@ public class CuboidDTO {
      * @return the calculated cuboid volume
      */
     public Double getVolume() {
-        if (width == 0 && height == 0 && depth == 0) return 0.0;
+        if (width == null && height == null && depth == null) return 0.0;
         return (double) width * height * depth;
     }
 }
