@@ -42,12 +42,34 @@ class CuboidServiceTest {
 
     @Test
     void updateWithSuccess() {
-        assertTrue(true);
+        Bag bag = BagTestBuilder.builder().id(30L).title("title").volume(30d).build();
+        Cuboid cuboid = CuboidTestBuilder.builder().id(1L).width(2f).height(3f).depth(4f).bag(bag).build();
+        CuboidDTO cuboidDTO = CuboidDTO.builder()
+                .id(cuboid.getId())
+                .width(5f).height(10f)
+                .depth(2f).bagId(bag.getId()).build();
+        Mockito.when(repository.findById(cuboid.getId())).thenReturn(Optional.of(cuboid));
+
+        cuboidService.update(cuboidDTO);
+
+        ArgumentCaptor<Cuboid> bagCaptor = ArgumentCaptor.forClass(Cuboid.class);
+        Mockito.verify(repository).save(bagCaptor.capture());
+
+        assertEquals(cuboidDTO.getHeight(), bagCaptor.getValue().getHeight());
+        assertEquals(cuboidDTO.getWidth(), bagCaptor.getValue().getWidth());
+        assertEquals(cuboidDTO.getDepth(), bagCaptor.getValue().getDepth());
     }
 
     @Test
     void updateWithCuboidNotFound() {
-        assertTrue(true);
+        Bag bag = BagTestBuilder.builder().id(30L).title("title").volume(30d).build();
+        Cuboid cuboid = CuboidTestBuilder.builder().id(1L).width(2f).height(3f).depth(4f).bag(bag).build();
+        CuboidDTO cuboidDTO = CuboidDTO.builder()
+                .id(cuboid.getId())
+                .width(5f).height(10f)
+                .depth(2f).bagId(bag.getId()).build();
+        Mockito.when(repository.findById(cuboid.getId())).thenReturn(Optional.empty());
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> cuboidService.update(cuboidDTO));
     }
 
     @Test
@@ -61,12 +83,14 @@ class CuboidServiceTest {
     }
     @Test
     void deleteWithSuccess() {
-        assertTrue(true);
+        cuboidService.deleteById(1L);
+        Mockito.verify(repository).deleteById(1L);
     }
 
     @Test
     void deleteWithErrorNoCuboid() {
-        assertTrue(true);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.empty());
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> cuboidService.deleteById(1L));
     }
 
     /************************************************************
