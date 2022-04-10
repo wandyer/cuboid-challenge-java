@@ -2,6 +2,7 @@ package co.fullstacklabs.cuboid.challenge.service.impl;
 
 import co.fullstacklabs.cuboid.challenge.dto.CuboidDTO;
 import co.fullstacklabs.cuboid.challenge.exception.ResourceNotFoundException;
+import co.fullstacklabs.cuboid.challenge.exception.UnprocessableEntityException;
 import co.fullstacklabs.cuboid.challenge.model.Bag;
 import co.fullstacklabs.cuboid.challenge.model.Cuboid;
 import co.fullstacklabs.cuboid.challenge.repository.BagRepository;
@@ -48,9 +49,27 @@ public class CuboidServiceImpl implements CuboidService {
     public CuboidDTO create(CuboidDTO cuboidDTO) {
         Bag bag = getBagById(cuboidDTO.getBagId());
         Cuboid cuboid = mapper.map(cuboidDTO, Cuboid.class);
-        cuboid.setBag(bag);
-        cuboid = repository.save(cuboid);
-        return mapper.map(cuboid, CuboidDTO.class);
+
+        if (canBagHoldNewCuboid(bag, cuboidDTO)) {
+            cuboid.setBag(bag);
+            cuboid = repository.save(cuboid);
+            return mapper.map(cuboid, CuboidDTO.class);
+        }
+
+        throw new UnprocessableEntityException("No space available in bag: " + bag.getId());
+    }
+
+    /**
+     * Check if there is enough space available in a bag to insert a new cuboid.
+     *
+     * @param bag the bag that will hold the new cuboid
+     * @param cuboidDTO the new cuboid
+     * @return boolean indicating if there ie enough space or not
+     */
+    private boolean canBagHoldNewCuboid(Bag bag, CuboidDTO cuboidDTO) {
+        double totalPayloadVolume = bag.getCuboids().stream()
+                .mapToDouble(cuboid -> cuboid.getHeight() * cuboid.getWidth() * cuboid.getDepth()).sum();
+        return bag.getVolume() - totalPayloadVolume >= cuboidDTO.getVolume();
     }
 
     /**
