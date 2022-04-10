@@ -14,4 +14,8 @@ public interface CuboidService {
 
     List<CuboidDTO> getAll();
 
+    void deleteById(long id);
+
+    CuboidDTO update(CuboidDTO cuboid);
+
 }

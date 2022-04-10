@@ -83,8 +83,42 @@ public class CuboidServiceImpl implements CuboidService {
         return cuboids.stream().map(bag -> mapper.map(bag, CuboidDTO.class))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Delete a cuboid from the database by id.
+     *
+     * @param id id of the cuboid to be deleted
+     */
+    @Override
+    @Transactional
+    public void deleteById(long id) {
+        Cuboid cuboid = getCuboidById(id);
+        repository.delete(cuboid);
+    }
+
+    /**
+     * Update an existing cuboid.
+     *
+     * @param cuboidDTO data to be updated and persisted
+     * @return CuboidDTO with the updated data
+     */
+    @Override
+    @Transactional
+    public CuboidDTO update(CuboidDTO cuboidDTO) {
+        Cuboid cuboid = getCuboidById(cuboidDTO.getId());
+        cuboid.setDepth(cuboidDTO.getDepth());
+        cuboid.setHeight(cuboidDTO.getHeight());
+        cuboid.setWidth(cuboidDTO.getWidth());
+        cuboid = repository.save(cuboid);
+        return mapper.map(cuboid, CuboidDTO.class);
+    }
+
     private Bag getBagById(long bagId) {
         return bagRepository.findById(bagId).orElseThrow(() -> new ResourceNotFoundException("Bag not found"));
+    }
+
+    private Cuboid getCuboidById(long cuboidId) {
+        return repository.findById(cuboidId).orElseThrow(() -> new ResourceNotFoundException("Cuboid not found"));
     }
 
 
