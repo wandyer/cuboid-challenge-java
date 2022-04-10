@@ -26,4 +26,22 @@ public class BagDTO {
     private Double payloadVolume;
     private Double availableVolume;
     private List<CuboidDTO> cuboids;
+
+    /**
+     * Calculate the total payload volume of the cuboids
+     *
+     * @return the calculated total payload volume
+     */
+    public Double getPayloadVolume() {
+        return cuboids.stream().mapToDouble(CuboidDTO::getVolume).sum();
+    }
+
+    /**
+     * Calculate the total available space of the bag
+     *
+     * @return the calculated available space
+     */
+    public Double getAvailableVolume() {
+        return volume - getPayloadVolume();
+    }
 }

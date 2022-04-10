@@ -25,4 +25,14 @@ public class CuboidDTO {
 
     @NotNull(message = "Cuboid related bag can't be null.")
     private Long bagId;
+
+    /**
+     * Calculate the volume of the cuboid
+     *
+     * @return the calculated cuboid volume
+     */
+    public Double getVolume() {
+        if (width == 0 && height == 0 && depth == 0) return 0.0;
+        return (double) width * height * depth;
+    }
 }
